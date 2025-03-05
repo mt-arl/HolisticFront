@@ -32,7 +32,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="usuarios-tab" data-bs-toggle="tab" data-bs-target="#usuarios" type="button"
-                    role="tab" aria-controls="usuarios" aria-selected="false">Gestionarrr Usuarios</button>
+                    role="tab" aria-controls="usuarios" aria-selected="false">Gestionar Usuarios</button>
 
             </li>
 
@@ -655,38 +655,46 @@
             // edit user
             // Función para cargar datos del usuario en el modal y editar
             async function editarUsuario(event) {
-                event.preventDefault();
+    event.preventDefault();
 
-                const userId = event.target.getAttribute('data-id'); // Obtener ID del usuario
-                const url = `https://hollister-center.vercel.app/api/users2/${userId}`; // URL para obtener datos
+    const userId = event.target.closest('.editUserBtn').getAttribute('data-id');
+    console.log("Obteniendo usuario con ID:", userId); // 🔍 Verifica que el ID sea correcto
 
-                try {
-                    const response = await fetch(url);
-                    const user = await response.json();
+    if (!userId) {
+        alert("Error: No se pudo obtener el ID del usuario.");
+        return;
+    }
 
-                    if (response.ok) {
-                        // Prellenar el formulario con los datos del usuario
-                        document.getElementById('userId').value = user.id || '';
-                        document.getElementById('cedula').value = user.cedula || '';
-                        document.getElementById('first_name').value = user.first_name || '';
-                        document.getElementById('last_name').value = user.last_name || '';
-                        document.getElementById('address').value = user.address || '';
-                        document.getElementById('phone').value = user.phone || '';
-                        document.getElementById('email').value = user.email || '';
-                        document.getElementById('password').value = ''; // Contraseñas no se rellenan
-                        document.getElementById('gender').value = user.gender || '';
-                        document.getElementById('userRole').value = user.id_rol || '3';
+    const url = `https://hollister-center.vercel.app/api/users2/${userId}`;
 
-                        // Abrir el modal
-                        const modal = new bootstrap.Modal(document.getElementById('userModal'));
-                        modal.show();
-                    } else {
-                        alert('Error al cargar los datos del usuario: ' + user.message);
-                    }
-                } catch (error) {
-                    console.error('Error al obtener datos del usuario:', error);
-                }
-            }
+    try {
+        const response = await fetch(url);
+        console.log("Respuesta de la API para edición:", response);
+        const user = await response.json();
+        console.log("Datos del usuario para editar:", user);
+
+        if (response.ok) {
+            document.getElementById('userId').value = user.id || '';
+            document.getElementById('cedula').value = user.cedula || '';
+            document.getElementById('first_name').value = user.first_name || '';
+            document.getElementById('last_name').value = user.last_name || '';
+            document.getElementById('address').value = user.address || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('password').value = ''; 
+            document.getElementById('gender').value = user.gender || '';
+            document.getElementById('userRole').value = user.id_rol || '3';
+
+            const modal = new bootstrap.Modal(document.getElementById('userModal'));
+            modal.show();
+        } else {
+            alert('Error al cargar los datos del usuario: ' + user.message);
+        }
+    } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+    }
+}
+
 
         </script>
 </body>
