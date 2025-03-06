@@ -661,47 +661,74 @@
         });
         // edit user
         // Función para cargar datos del usuario en el modal y editar
-        async function editarUsuario(event) {
-            event.preventDefault();
+     async function editarUsuario(event) {
+    event.preventDefault();
 
-            const userId = event.target.closest('.editUserBtn').getAttribute('data-id');
-            console.log("Obteniendo usuario con ID:", userId); // 🔍 Verifica que el ID sea correcto
+    // Buscar el botón más cercano con la clase .editUserBtn
+    const button = event.target.closest('.editUserBtn'); 
+    if (!button) {
+        console.error("No se encontró el botón de edición.");
+        return;
+    }
 
-            if (!userId) {
-                alert("Error: No se pudo obtener el ID del usuario.");
-                return;
-            }
+    // Obtener el ID del usuario desde el atributo data-id
+    const userId = button.getAttribute('data-id');
+    console.log("Obteniendo usuario con ID:", userId);
 
-            const url = `https://hollister-center.vercel.app/api/users2/${userId}`;
+    if (!userId) {
+        alert("Error: No se pudo obtener el ID del usuario.");
+        return;
+    }
 
-            try {
-                const response = await fetch(url);
-                console.log("Respuesta de la API para edición:", response);
-                const user = await response.json();
-                console.log("Datos del usuario para editar:", user);
+    const url = `https://hollister-center.vercel.app/api/users2/${userId}`;
 
-                if (response.ok) {
-                    document.getElementById('userId').value = user.id || '';
-                    document.getElementById('cedula').value = user.cedula || '';
-                    document.getElementById('first_name').value = user.first_name || '';
-                    document.getElementById('last_name').value = user.last_name || '';
-                    document.getElementById('address').value = user.address || '';
-                    document.getElementById('phone').value = user.phone || '';
-                    document.getElementById('email').value = user.email || '';
-                    document.getElementById('password').value = '';
-                    document.getElementById('gender').value = user.gender || '';
-                    document.getElementById('userRole').value = user.id_rol || '3';
-
-                    const modal = new bootstrap.Modal(document.getElementById('userModal'));
-                    modal.show();
-                } else {
-                    alert('Error al cargar los datos del usuario: ' + user.message);
-                }
-            } catch (error) {
-                console.error('Error al obtener datos del usuario:', error);
-            }
+    try {
+        const response = await fetch(url);
+        console.log("Respuesta de la API para edición:", response);
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
         }
 
+        const user = await response.json();
+        console.log("Datos del usuario para editar:", user);
+
+        // Verificar que el modal está en el DOM
+        const modalElement = document.getElementById('userModal');
+        if (!modalElement) {
+            console.error("El modal 'userModal' no existe en el DOM.");
+            return;
+        }
+
+        // Usar querySelector dentro del modal para evitar conflictos con IDs duplicados
+        modalElement.querySelector('#userId').value = user.id || '';
+        modalElement.querySelector('#cedula').value = user.cedula || '';
+        modalElement.querySelector('#first_name').value = user.first_name || '';
+        modalElement.querySelector('#last_name').value = user.last_name || '';
+        modalElement.querySelector('#address').value = user.address || '';
+        modalElement.querySelector('#phone').value = user.phone || '';
+        modalElement.querySelector('#email').value = user.email || '';
+        modalElement.querySelector('#password').value = ''; // No mostrar la contraseña por seguridad
+        modalElement.querySelector('#gender').value = user.gender || '';
+
+        // Mostrar el modal correctamente
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+    } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+        alert('Error al cargar los datos del usuario.');
+    }
+}
+
+// Agregar evento a los botones de edición dentro de la tabla de usuarios
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('usersBody').addEventListener('click', (event) => {
+        if (event.target.classList.contains('editUserBtn') || event.target.closest('.editUserBtn')) {
+            editarUsuario(event);
+        }
+    });
+});
 
     </script>
 </body>
